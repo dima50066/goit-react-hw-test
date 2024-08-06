@@ -1,86 +1,69 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import "./App.css";
-import { getPhotos } from "./apiServices/unSplash";
-import SearchBar from "./components/SearchBar/searchBar";
-import ImageGallery from "./components/ImageGallery/imageGallery";
-import Loader from "./components/Loader/loader";
-import ErrorMessage from "./components/ErrorMessage/errorMessage";
+import { useState, useEffect } from "react";
+import SearchBar from "./components/SearchBar/SearchBar";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
+import Loader from "./components/Loader/Loader";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "./components/ImageModal/ImageModal";
+import axiosInstance from "./axiosConfig";
+import { Toaster } from "react-hot-toast";
 
-const App = () => {
+function App() {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [images, setImages] = useState([]);
-  const [loader, setLoader] = useState(false);
-  const [error, setError] = useState(null);
-  const [isEmpty, setIsEmpty] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalUrl, setModalUrl] = useState("");
-  const [modalAlt, setModalAlt] = useState("");
-
-  const onHandleSubmit = (searchQuery) => {
-    setQuery(searchQuery);
-    setImages([]);
-    setPage(1);
-    setError(null);
-    setIsVisible(false);
-    setIsEmpty(false);
-  };
-
-  const onLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
-
-  const openModal = (url, alt) => {
-    setModalUrl(url);
-    setModalAlt(alt);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setModalUrl("");
-    setModalAlt("");
-  };
+  const [modalImage, setModalImage] = useState(null);
 
   useEffect(() => {
     if (!query) return;
+
     const fetchImages = async () => {
-      setLoader(true);
+      setLoading(true);
+      setError(null);
+
       try {
-        const { per_page, photos, total_results } = await getPhotos(
-          query,
-          page
-        );
-        if (!photos.length) return setIsEmpty(true);
-        setImages((prevImages) => [...prevImages, ...photos]);
-        setIsVisible(page < Math.ceil(total_results / per_page));
+        const response = await axiosInstance.get("/search/photos", {
+          params: { query, page, per_page: 12 },
+        });
+        setImages((prevImages) => [...prevImages, ...response.data.results]);
       } catch (error) {
-        setError(error);
+        setError("Failed to fetch images");
       } finally {
-        setLoader(false);
+        setLoading(false);
       }
     };
+
     fetchImages();
   }, [query, page]);
 
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
+    setImages([]);
+    setPage(1);
+  };
+
+  const loadMore = () => setPage((prevPage) => prevPage + 1);
+
+  const openModal = (image) => setModalImage(image);
+  const closeModal = () => setModalImage(null);
+
   return (
-    <>
-      <SearchBar onSubmit={onHandleSubmit} />
-      {images.length > 0 && (
-        <ImageGallery
-          images={images}
-          openModal={openModal}
-          onLoadMore={onLoadMore}
-          isVisible={isVisible}
-          isEmpty={isEmpty}
-        />
-      )}
-      {isVisible && <LoadMoreBtn onLoadMore={onLoadMore} />}
-      {loader && <Loader />}
-      {error && <ErrorMessage error={error} />}
-    </>
+    <div>
+      <Toaster />
+      <SearchBar onSubmit={handleSearch} />
+      {error && <ErrorMessage message={error} />}
+      <ImageGallery images={images} onImageClick={openModal} />
+      {loading && <Loader />}
+      {images.length > 0 && !loading && <LoadMoreBtn onClick={loadMore} />}
+      <ImageModal
+        isOpen={!!modalImage}
+        onRequestClose={closeModal}
+        image={modalImage}
+      />
+    </div>
   );
-};
+}
 
 export default App;

@@ -8,6 +8,8 @@ import ImageModal from "./components/ImageModal/ImageModal";
 import axiosInstance from "./axiosConfig";
 import { Toaster } from "react-hot-toast";
 
+import "./App.css";
+
 function App() {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);

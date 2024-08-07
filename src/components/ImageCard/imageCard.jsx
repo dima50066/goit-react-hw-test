@@ -12,6 +12,12 @@ function ImageCard({ image }) {
         alt={image.alt_description || "Image"}
         className={styles.image}
       />
+
+      <p className={styles.description}>{image.alt_description}</p>
+
+      <p className={styles.author}>Author: {image.user.name}</p>
+
+      <p className={styles.likes}>Likes: {image.likes}</p>
     </div>
   );
 }

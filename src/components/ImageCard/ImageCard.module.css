@@ -12,3 +12,21 @@
   border-radius: 8px;
   transition: transform 0.2s;
 }
+
+.description {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.author {
+  padding: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.likes {
+  padding: 10px;
+  font-size: 14px;
+  color: #666;
+}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import styles from "./SearchBar.module.css";
 
-function SearchBar({ onSubmit }) {
+const SearchBar = ({ onSubmit }) => {
   const [query, setQuery] = useState("");
 
   const handleSubmit = (e) => {
@@ -30,6 +30,6 @@ function SearchBar({ onSubmit }) {
       </form>
     </header>
   );
-}
+};
 
 export default SearchBar;

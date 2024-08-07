@@ -13,9 +13,7 @@ function ImageModal({ isOpen, onRequestClose, image }) {
       overlayClassName={styles.overlay}
       closeTimeoutMS={300}
     >
-      <button className={styles.closeButton} onClick={onRequestClose}>
-        Close
-      </button>
+      <button className={styles.closeButton} onClick={onRequestClose}></button>
       {image && (
         <img
           src={image.urls?.regular}
